@@ -20,17 +20,18 @@ services:
   db_test:
     image: postgres
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - ./tmp/db:/var/lib/postgresql/data
   test:
     build: .
-    command: bash -c "bin/rspec"
+    command: bash -c "sleep 3600"
     volumes:
       - '.:/app'
     ports:
-      - '3000:3000'
+      - '3001:3000'
     environment:
+      NODE_ENV: test
       DATABASE_URL: postgres://postgres@db_test
     depends_on:
       - db_test
