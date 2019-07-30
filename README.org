@@ -1,0 +1,18 @@
+* Process
+1. ~brew cask install docker~
+2. launch the Docker app which was just installed on your machine
+3. give it permissions to install its network devices
+4. ~rails new dockertest~
+5. ~cd dockertest~
+6. Create a ~Dockerfile~
+7.  ~docker build .~
+8. Create a ~docker-compose.yml~
+9. Adjust ~config/database.yml~ so it points to the database hostname given in docker-compose
+10. set up dev database: ~docker-compose run <TARGET> rake db:create db:setup~
+* Sources
+https://rubyinrails.com/2019/03/29/dockerify-rails-6-application-setup/
+https://thoughtbot.com/blog/rails-on-docker
+* Questions
+1. Who maintains the docker file and docker compose file?
+2. What's the setup for the system so it tells us when we should be doing system upgrades?
+3. Killing a container doesn’t kill the containers it depends on?
