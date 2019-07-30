@@ -1,0 +1,36 @@
+version: '3'
+services:
+  db:
+    image: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./tmp/db:/var/lib/postgresql/data
+  web:
+    build: .
+    command: bash -c "foreman start -f Procfile.dev-server"
+    volumes:
+      - '.:/app'
+    ports:
+      - '3000:3000'
+    environment:
+      DATABASE_URL: postgres://postgres@db
+    depends_on:
+      - db
+  db_test:
+    image: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./tmp/db:/var/lib/postgresql/data
+  test:
+    build: .
+    command: bash -c "bin/rspec"
+    volumes:
+      - '.:/app'
+    ports:
+      - '3000:3000'
+    environment:
+      DATABASE_URL: postgres://postgres@db_test
+    depends_on:
+      - db_test
