@@ -5,7 +5,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./tmp/db:/var/lib/postgresql/data
+      - db_test:/var/lib/postgresql/data
   web:
     build: .
     command: bash -c "foreman start -f Procfile.dev-server"
@@ -25,7 +25,7 @@ services:
     ports:
       - "5433:5432"
     volumes:
-      - ./tmp/db:/var/lib/postgresql/data
+      - db_test_data:/var/lib/postgresql/data
   test:
     build: .
     command: tail -f '/dev/null'
@@ -43,3 +43,7 @@ services:
       DATABASE_USERNAME: postgres
     depends_on:
       - db_test
+
+volumes:
+  db_test_data:
+  db_data:
