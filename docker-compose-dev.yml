@@ -1,0 +1,52 @@
+version: '3'
+services:
+  db:
+    image: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+  web:
+    build: .
+    command: bash -c "foreman start -f Procfile.dev-server"
+    volumes:
+      - './app:/app/app'
+      - './test:/app/test'
+    links:
+      - db
+    ports:
+      - '3000:3000'
+    environment:
+      DATABASE_URL: postgres://postgres@db
+    depends_on:
+      - db
+  db_test:
+    image: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - db_test_data:/var/lib/postgresql/data
+  test:
+    build: .
+    command: tail -f '/dev/null'
+    links:
+      - db_test
+    volumes:
+      - default-sync:/app:nocopy
+#      - './app:/app/app'
+#      - './test:/app/test'
+#      - './config:/app/config'
+    ports:
+      - '3001:3000'
+    environment:
+      NODE_ENV: test
+      DATABASE_HOST: db_test
+      DATABASE_USERNAME: postgres
+    depends_on:
+      - db_test
+
+volumes:
+  default-sync:
+    external: true
+  db_test_data:
+  db_data:

@@ -1,0 +1,8 @@
+version: 2
+options:
+  compose-file-path: 'docker-compose.yml'
+
+syncs:
+  default-sync:
+    sync_strategy: 'native_osx'
+    src: '.'
