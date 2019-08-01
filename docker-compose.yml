@@ -1,50 +1,70 @@
-version: '3'
+version: '3.4'
+
+networks:
+  dev:
+  test:
+
+x-base-app: &base_app
+  image: app:latest
+  build: .
+  volumes:
+    - './app:/app/app'
+  command: bin/spring server
+
+x-db-vars: &db-vars
+  DATABASE_HOST: db
+  DATABASE_USERNAME: postgres
+x-base-db: &base_db
+  image: postgres
+
+
 services:
-  db:
-    image: postgres
-    ports:
-      - "5432:5432"
-    volumes:
-      - db_data:/var/lib/postgresql/data
-  web:
-    build: .
-    command: bash -c "foreman start -f Procfile.dev-server"
-    volumes:
-      - './app:/app/app'
-      - './test:/app/test'
-    links:
-      - db
+  dev:
+    <<: *base_app
     ports:
       - '3000:3000'
     environment:
-      DATABASE_URL: postgres://postgres@db
+      <<: *db-vars
     depends_on:
-      - db
-  db_test:
-    image: postgres
+      - dev_db
+    networks:
+      dev:
+        aliases:
+          - app
+
+  dev_db:
+    <<: *base_db
     ports:
-      - "5433:5432"
+      - '5432:5432'
     volumes:
-      - db_test_data:/var/lib/postgresql/data
+      - dev_db_data:/var/lib/postgresql/data
+    networks:
+      dev:
+        aliases:
+          - db
+
   test:
-    build: .
-    command: bin/spring server
-    #command: tail -f '/dev/null'
-    links:
-      - db_test
-    volumes:
-      - './app:/app/app'
-      - './test:/app/test'
-      - './config:/app/config'
-    ports:
-      - '3001:3000'
-    environment:
-      NODE_ENV: test
-      DATABASE_HOST: db_test
-      DATABASE_USERNAME: postgres
+    <<: *base_app
     depends_on:
-      - db_test
+      - test_db
+    environment:
+      <<: *db-vars
+      NODE_ENV: test
+    networks:
+      test:
+        aliases:
+          - app
+  test_db:
+    <<: *base_db
+    ports:
+      - '5433:5432'
+    volumes:
+      - test_db_data:/var/lib/postgresql/data
+    networks:
+      test:
+        aliases:
+          - db
 
 volumes:
-  db_test_data:
-  db_data:
+  test_db_data:
+  dev_db_data:
